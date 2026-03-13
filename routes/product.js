@@ -18,7 +18,7 @@ const upload = require("../middleware/multer");
 router.post("/create", admin,  upload.single("image"), createProduct);
 
 // GET ALL
-router.get("/", getProducts);
+router.get("/",  getProducts);
 
 // CATEGORY
 router.get("/category/:category", getCategoryProducts);
