@@ -1,4 +1,4 @@
-const mongoDb = "mongodb://localhost:27017/myskincare"
+const mongoDb = "mongodb://localhost:27017/umair"
 const mongoose = require("mongoose")
 
 
