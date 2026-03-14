@@ -7,6 +7,7 @@ const db = require("../backend/db/connect")
 const user = require("../backend/routes/user")
 const admin = require("../backend/routes/adminroutes")
 const productRoutes = require("../backend/routes/product")
+const cartRoutes = require("./routes/cart")
 const dotenv = require("dotenv")
 dotenv.config()
 
@@ -23,6 +24,9 @@ app.use("/api/v2/user", user)
 app.use("/api/v2/admin", admin)
 
 app.use("/api/v2/product", productRoutes)
+
+// cart?
+app.use("/api/v2/cart", cartRoutes)
 
 
 
