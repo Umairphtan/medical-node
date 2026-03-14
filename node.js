@@ -6,7 +6,7 @@ const cookieparser = require("cookie-parser")
 const db = require("../backend/db/connect")
 const user = require("../backend/routes/user")
 const admin = require("../backend/routes/adminroutes")
-const productRoutes = require("./routes/product")
+const productRoutes = require("../backend/routes/product")
 const dotenv = require("dotenv")
 dotenv.config()
 
@@ -18,11 +18,11 @@ app.use(cookieparser())
 
 
 // user routes?
-app.use("/api/v1/user", user)
+app.use("/api/v2/user", user)
 // admin routes?
-app.use("/api/v1/admin", admin)
+app.use("/api/v2/admin", admin)
 
-app.use("/api/v1/product", productRoutes)
+app.use("/api/v2/product", productRoutes)
 
 
 
