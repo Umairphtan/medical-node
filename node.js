@@ -17,21 +17,16 @@ app.use(express.json());
 app.use(cors())
 app.use(cookieparser())
 
-
-
 // user routes?
 app.use("/api/v2/user", user)
 // admin routes?
-app.use("/api/v2/admin", admin)
-
+app.use("/api/v2/admin", admin)/
+// productt
 app.use("/api/v2/product", productRoutes)
-
 // cart?
 app.use("/api/v2/cart", cartRoutes)
-
+// order?
 app.use("/api/v2/order", orderRoutes);
-
-
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
