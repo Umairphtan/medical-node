@@ -24,7 +24,7 @@ router.get("/",  getProducts);
 router.get("/category/:category", getCategoryProducts);
 
 // UPDATE
-router.put("/update/:id" , updateProduct);
+router.put("/update/:id", admin  , updateProduct);
 
 // DELETE
 router.delete("/delete/:id", admin, deleteProduct);
