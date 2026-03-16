@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
-const orderSchema = new mongoose.Schema(
-{
+const orderSchema = new mongoose.Schema({
+
 user:{
 type:mongoose.Schema.Types.ObjectId,
-ref:"admin",
+ref:"User",
 required:true
 },
 
@@ -14,9 +14,13 @@ ref:"Product",
 required:true
 },
 
+shipment:{
+type:mongoose.Schema.Types.ObjectId,
+ref:"Shipment"
+},
+
 quantity:{
 type:Number,
-required:true,
 default:1
 },
 
@@ -36,10 +40,10 @@ enum:["pending","confirmed","cancelled"],
 default:"pending"
 }
 
-},
-{
-timestamps:true
-}
-);
 
-module.exports = mongoose.model("Order",orderSchema);
+
+},{
+timestamps:true
+})
+
+module.exports = mongoose.model("Order",orderSchema)
