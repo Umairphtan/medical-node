@@ -2,7 +2,8 @@
 const usermodel = require("../modals/user")
 const bcrypt = require("bcrypt")
 const jsonwebtoken = require("jsonwebtoken")
-
+const dotenv = require("dotenv")
+dotenv.config()
 //  singup pag ""         
 
 const createUser = async (req, res) => {
@@ -61,7 +62,7 @@ const loginUser = async (req, res) => {
             userId: user._id
         },
             process.env.SECRET_KEY,
-            { expiresIn: "1h" }
+            { expiresIn: "30d" }
 
         )
         res.cookie('token', token, {

@@ -8,7 +8,9 @@ createProduct,
 getProducts,
 getCategoryProducts,
 updateProduct,
-deleteProduct
+deleteProduct,
+getBestSellingProducts ,
+getProductById
 } = require("../controler/product");
 
 const upload = require("../middleware/multer");
@@ -23,9 +25,16 @@ router.get("/",  getProducts);
 // CATEGORY
 router.get("/category/:category", getCategoryProducts);
 
+// best seling
+router.get("/best-selling", getBestSellingProducts);
+
 // UPDATE
 router.put("/update/:id", admin  , updateProduct);
 
+
+
+// routes/product.js
+router.get("/:id", getProductById);
 // DELETE
 router.delete("/delete/:id", admin, deleteProduct);
 

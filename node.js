@@ -9,14 +9,18 @@ const admin = require("../backend/routes/adminroutes")
 const productRoutes = require("../backend/routes/product")
 const orderRoutes = require("../backend/routes/order")
 const cartRoutes = require("./routes/cart")
-const shipment = require("./routes/shipment")
-const dotenv = require("dotenv")
-dotenv.config()
+const path = require("path");
+
 
 db()
 app.use(express.json());
-app.use(cors())
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true,
+}));
 app.use(cookieparser())
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // user routes?
 app.use("/api/v2/user", user)
@@ -29,8 +33,6 @@ app.use("/api/v2/cart", cartRoutes)
 // order?
 app.use("/api/v2/order", orderRoutes);
 
-// shipment
-app.use("/api/v2/shipment", shipment);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
