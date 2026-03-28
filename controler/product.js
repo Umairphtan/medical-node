@@ -1,6 +1,8 @@
 const Product = require("../modals/product");
+const mongoose = require("mongoose");
 
-// CREATE PRODUCT
+
+/// CREATE PRODUCT
 exports.createProduct = async (req, res) => {
   try {
 
@@ -27,7 +29,11 @@ exports.createProduct = async (req, res) => {
       price,
       category,
       stock,
-      image: req.file.filename
+      image: req.file.filename,
+
+      // BEST SELLING SYSTEM
+      sold: 0,
+      status: stock > 0 ? "in-stock" : "out-of-stock"
     });
 
     res.status(201).json({
@@ -45,9 +51,6 @@ exports.createProduct = async (req, res) => {
 
   }
 };
-
-
-
 // GET ALL PRODUCTS
 exports.getProducts = async (req, res) => {
   try {
@@ -165,5 +168,77 @@ exports.deleteProduct = async (req, res) => {
       message: err.message
     });
 
+  }
+};
+exports.getBestSellingProducts = async (req,res)=>{
+
+try{
+
+const products = await Product
+.find()
+.sort({ sold: -1 })
+.limit(10);
+
+res.status(200).json({
+success:true,
+products
+})
+
+}catch(error){
+
+res.status(500).json({
+success:false,
+message:error.message
+})
+
+}
+
+}
+// GET SINGLE PRODUCT
+exports.getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    console.log("👉 Incoming ID:", id); // DEBUG
+
+    // 🔒 Check ID exists
+    if (!id || id === "undefined") {
+      return res.status(400).json({
+        success: false,
+        message: "Product ID is required",
+      });
+    }
+
+    // 🔒 Validate MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Product ID",
+      });
+    }
+
+    // 🔍 Find product
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // ✅ Success
+    return res.status(200).json({
+      success: true,
+      data: product,
+    });
+
+  } catch (error) {
+    console.error("❌ getProductById Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
