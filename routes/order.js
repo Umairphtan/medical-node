@@ -7,16 +7,25 @@ const {
   getAllOrders,
   updateOrderStatus,
   deleteOrder,
-} = require("../controler/order");
+  getBankDetails,
+  verifyPayment
+} = require("../controller/order");
 
 const auth = require("../middleware/auth");
+const upload = require("../middleware/upload")
 
 // USER
-router.post("/", auth, createOrder);
+router.post("/", upload.single("screenshot"), auth, createOrder);
 router.get("/my", auth, getMyOrders);
+router.get("/detail", auth, getBankDetails
+);
+
 
 // ADMIN
 router.get("/", auth, getAllOrders);
+router.put("/verify/:id", auth, verifyPayment); //
+
+
 router.put("/:id", auth, updateOrderStatus);
 router.delete("/:id", auth, deleteOrder);
 

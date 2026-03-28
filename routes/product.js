@@ -11,7 +11,7 @@ updateProduct,
 deleteProduct,
 getBestSellingProducts ,
 getProductById
-} = require("../controler/product");
+} = require("../controller/product");
 
 const upload = require("../middleware/multer");
 

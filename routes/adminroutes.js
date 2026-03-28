@@ -1,5 +1,5 @@
 const express = require("express")
-const getuser = require("../controler/admin")
+const getuser = require("../controller/admin")
 const checkadmin = require("../middleware/checkadmin")
 
 const AdminRoute = express.Router()
