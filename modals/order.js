@@ -5,6 +5,7 @@ const orderSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
 
     products: [
@@ -26,7 +27,6 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
-    // 📦 SHIPPING DETAILS
     shipping: {
       name: { type: String, required: true },
       phone: { type: String, required: true },
@@ -34,14 +34,14 @@ const orderSchema = new mongoose.Schema(
       city: { type: String, required: true },
     },
 
-    // 💳 PAYMENT
     paymentMethod: {
       type: String,
       enum: ["COD", "BANK"],
       required: true,
     },
 
-    bankAccount: {
+    // optional field for screenshot
+    paymentScreenshot: {
       type: String,
       default: "",
     },
