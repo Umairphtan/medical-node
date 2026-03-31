@@ -112,6 +112,25 @@ exports.deleteOrder = async (req, res) => {
 };
 
 exports.verifyPayment = async (req, res) => {
-  const order = await Order.findByIdAndUpdate(req.params.id, { paymentStatus: "paid" }, { new: true });
-  res.status(200).json({ success: true, data: order });
+  try {
+    const { action } = req.body; // approve or reject
+    if (!["approve", "reject"].includes(action))
+      return res.status(400).json({ success: false, message: "Invalid action" });
+
+    const update = action === "approve" ? { paymentStatus: "paid" } : { paymentStatus: "rejected" };
+
+    const order = await Order.findByIdAndUpdate(
+  req.params.id,
+  update,
+  { returnDocument: "after" } 
+);
+
+res.status(200).json({
+  success: true,
+  message: `Payment ${action}ed successfully`,
+  data: order,
+});
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 };

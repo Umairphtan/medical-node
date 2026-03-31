@@ -170,30 +170,25 @@ exports.deleteProduct = async (req, res) => {
 
   }
 };
-exports.getBestSellingProducts = async (req,res)=>{
+exports.getBestSellingProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ sold: { $gt: 0 } }) 
+      .sort({ sold: -1 }) // descending order
+      .limit(10);
 
-try{
+    res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
-const products = await Product
-.find()
-.sort({ sold: -1 })
-.limit(10);
 
-res.status(200).json({
-success:true,
-products
-})
-
-}catch(error){
-
-res.status(500).json({
-success:false,
-message:error.message
-})
-
-}
-
-}
 // GET SINGLE PRODUCT
 exports.getProductById = async (req, res) => {
   try {
