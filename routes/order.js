@@ -26,7 +26,7 @@ router.get("/", auth, getAllOrders);
 router.put("/verify/:id", auth, verifyPayment); //
 
 
-router.put("/:id", auth, updateOrderStatus);
+router.put("/update:id", auth, updateOrderStatus);
 router.delete("/:id", auth, deleteOrder);
 
 module.exports = router;
