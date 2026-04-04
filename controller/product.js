@@ -1,14 +1,12 @@
-const Product = require("../modals/product");
+const Product = require("../models/product");
 const mongoose = require("mongoose");
-
+const redis = require("../db/redis");
 
 /// CREATE PRODUCT
 exports.createProduct = async (req, res) => {
   try {
-
     const { title, description, price, category, stock } = req.body;
 
-    // VALIDATION
     if (!title || !description || !price || !category || !stock) {
       return res.status(400).json({
         success: false,
@@ -30,11 +28,14 @@ exports.createProduct = async (req, res) => {
       category,
       stock,
       image: req.file.filename,
-
-      // BEST SELLING SYSTEM
       sold: 0,
       status: stock > 0 ? "in-stock" : "out-of-stock"
     });
+
+    // 🔥 CACHE CLEAR
+    await redis.del("products_all");
+    await redis.del("best_products");
+    await redis.del(`category_${category}`);
 
     res.status(201).json({
       success: true,
@@ -43,33 +44,46 @@ exports.createProduct = async (req, res) => {
     });
 
   } catch (err) {
-
     res.status(500).json({
       success: false,
       message: err.message
     });
-
   }
 };
+
+
+
 // GET ALL PRODUCTS
 exports.getProducts = async (req, res) => {
   try {
+    const cacheKey = "products_all";
+
+    const cachedData = await redis.get(cacheKey);
+
+    if (cachedData) {
+      console.log("⚡ Products from Redis");
+      return res.status(200).json(JSON.parse(cachedData));
+    }
 
     const products = await Product.find().sort({ createdAt: -1 });
 
-    res.status(200).json({
+    const response = {
       success: true,
       message: "Products fetched successfully",
       data: products
-    });
+    };
+
+    await redis.set(cacheKey, JSON.stringify(response), "EX", 60);
+
+    console.log("🐢 Products from MongoDB");
+
+    res.status(200).json(response);
 
   } catch (err) {
-
     res.status(500).json({
       success: false,
       message: err.message
     });
-
   }
 };
 
@@ -78,8 +92,8 @@ exports.getProducts = async (req, res) => {
 // GET CATEGORY PRODUCTS
 exports.getCategoryProducts = async (req, res) => {
   try {
-
     const { category } = req.params;
+    const cacheKey = `category_${category}`;
 
     if (!category) {
       return res.status(400).json({
@@ -88,21 +102,32 @@ exports.getCategoryProducts = async (req, res) => {
       });
     }
 
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      console.log("⚡ Category from Redis");
+      return res.status(200).json(JSON.parse(cached));
+    }
+
     const products = await Product.find({ category });
 
-    res.status(200).json({
+    const response = {
       success: true,
       message: "Category products fetched",
       data: products
-    });
+    };
+
+    await redis.set(cacheKey, JSON.stringify(response), "EX", 120);
+
+    console.log("🐢 Category from MongoDB");
+
+    res.status(200).json(response);
 
   } catch (err) {
-
     res.status(500).json({
       success: false,
       message: err.message
     });
-
   }
 };
 
@@ -111,7 +136,6 @@ exports.getCategoryProducts = async (req, res) => {
 // UPDATE PRODUCT
 exports.updateProduct = async (req, res) => {
   try {
-
     const product = await Product.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -125,6 +149,11 @@ exports.updateProduct = async (req, res) => {
       });
     }
 
+    // 🔥 CACHE CLEAR
+    await redis.del("products_all");
+    await redis.del(`product_${req.params.id}`);
+    await redis.del("best_products");
+
     res.status(200).json({
       success: true,
       message: "Product updated successfully",
@@ -132,12 +161,10 @@ exports.updateProduct = async (req, res) => {
     });
 
   } catch (err) {
-
     res.status(500).json({
       success: false,
       message: err.message
     });
-
   }
 };
 
@@ -146,7 +173,6 @@ exports.updateProduct = async (req, res) => {
 // DELETE PRODUCT
 exports.deleteProduct = async (req, res) => {
   try {
-
     const product = await Product.findByIdAndDelete(req.params.id);
 
     if (!product) {
@@ -156,30 +182,53 @@ exports.deleteProduct = async (req, res) => {
       });
     }
 
+    // 🔥 CACHE CLEAR
+    await redis.del("products_all");
+    await redis.del(`product_${req.params.id}`);
+    await redis.del("best_products");
+
     res.status(200).json({
       success: true,
       message: "Product deleted successfully"
     });
 
   } catch (err) {
-
     res.status(500).json({
       success: false,
       message: err.message
     });
-
   }
 };
+
+
+
+// BEST SELLING PRODUCTS
 exports.getBestSellingProducts = async (req, res) => {
   try {
-    const products = await Product.find({ sold: { $gt: 0 } }) 
-      .sort({ sold: -1 }) // descending order
+    const cacheKey = "best_products";
+
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      console.log("⚡ Best selling from Redis");
+      return res.status(200).json(JSON.parse(cached));
+    }
+
+    const products = await Product.find({ sold: { $gt: 0 } })
+      .sort({ sold: -1 })
       .limit(10);
 
-    res.status(200).json({
+    const response = {
       success: true,
       products,
-    });
+    };
+
+    await redis.set(cacheKey, JSON.stringify(response), "EX", 180);
+
+    console.log("🐢 Best selling from MongoDB");
+
+    res.status(200).json(response);
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -189,14 +238,13 @@ exports.getBestSellingProducts = async (req, res) => {
 };
 
 
+
 // GET SINGLE PRODUCT
 exports.getProductById = async (req, res) => {
   try {
     const { id } = req.params;
+    const cacheKey = `product_${id}`;
 
-    console.log("👉 Incoming ID:", id); // DEBUG
-
-    // 🔒 Check ID exists
     if (!id || id === "undefined") {
       return res.status(400).json({
         success: false,
@@ -204,7 +252,6 @@ exports.getProductById = async (req, res) => {
       });
     }
 
-    // 🔒 Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
@@ -212,7 +259,13 @@ exports.getProductById = async (req, res) => {
       });
     }
 
-    // 🔍 Find product
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      console.log("⚡ Single Product from Redis");
+      return res.status(200).json(JSON.parse(cached));
+    }
+
     const product = await Product.findById(id);
 
     if (!product) {
@@ -222,11 +275,16 @@ exports.getProductById = async (req, res) => {
       });
     }
 
-    // ✅ Success
-    return res.status(200).json({
+    const response = {
       success: true,
       data: product,
-    });
+    };
+
+    await redis.set(cacheKey, JSON.stringify(response), "EX", 120);
+
+    console.log("🐢 Single Product from MongoDB");
+
+    return res.status(200).json(response);
 
   } catch (error) {
     console.error("❌ getProductById Error:", error);

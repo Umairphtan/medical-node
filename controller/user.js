@@ -1,5 +1,5 @@
 // const { use } = require("react");
-const usermodel = require("../modals/user")
+const usermodel = require("../models/user")
 const bcrypt = require("bcrypt")
 const jsonwebtoken = require("jsonwebtoken")
 const dotenv = require("dotenv")
