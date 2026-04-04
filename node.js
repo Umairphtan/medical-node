@@ -9,6 +9,7 @@ const admin = require("../backend/routes/adminroutes")
 const productRoutes = require("../backend/routes/product")
 const orderRoutes = require("../backend/routes/order")
 const cartRoutes = require("./routes/cart")
+const contactRoutes = require("./routes/contact")
 const path = require("path");
 
 
@@ -32,6 +33,8 @@ app.use("/api/v2/product", productRoutes)
 app.use("/api/v2/cart", cartRoutes)
 // order?
 app.use("/api/v2/order", orderRoutes);
+// contac uss
+app.use("/api/v2/contact", contactRoutes);
 
 
 app.listen(port, () => {
