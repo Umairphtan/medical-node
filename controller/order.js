@@ -1,12 +1,12 @@
-const Order = require("../modals/order");
-const Product = require("../modals/product");
-const Cart = require("../modals/cart");
+const Order = require("../models/order");
+const Product = require("../models/product");
+const Cart = require("../models/cart");
 const mongoose = require("mongoose");
 
 const BANK_INFO = {
-  accountName: "NaturGlow Pvt Ltd",
-  accountNumber: "123456789012",
-  bankName: "Bank of Pakistan",
+  accountName: "farida jubeen",
+  accountNumber: "00060900007335",
+  bankName: "askari bank",
   branch: "Main Branch",
 };
 
@@ -120,16 +120,16 @@ exports.verifyPayment = async (req, res) => {
     const update = action === "approve" ? { paymentStatus: "paid" } : { paymentStatus: "rejected" };
 
     const order = await Order.findByIdAndUpdate(
-  req.params.id,
-  update,
-  { returnDocument: "after" } 
-);
+      req.params.id,
+      update,
+      { returnDocument: "after" }
+    );
 
-res.status(200).json({
-  success: true,
-  message: `Payment ${action}ed successfully`,
-  data: order,
-});
+    res.status(200).json({
+      success: true,
+      message: `Payment ${action}ed successfully`,
+      data: order,
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

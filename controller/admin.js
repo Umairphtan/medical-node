@@ -1,4 +1,4 @@
-const usermodel = require("../modals/user")
+const usermodel = require("../models/user")
 
 const getuser = async (req, res) => {
     try {
