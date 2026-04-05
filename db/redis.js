@@ -1,10 +1,11 @@
 const Redis = require("ioredis");
 
 const redis = new Redis({
-  host: "127.0.0.1",
-  port: 6379,
-
+  host: process.env.REDIS_HOST || "127.0.0.1",
+  port: process.env.REDIS_PORT || 6379,
+  password: process.env.REDIS_PASSWORD || undefined,
   retryStrategy(times) {
+    // Retry connection if Redis down
     return Math.min(times * 50, 2000);
   },
 });
@@ -14,7 +15,7 @@ redis.on("connect", () => {
 });
 
 redis.on("error", (err) => {
-  console.log("❌ Redis Error:", err);
+  console.error("❌ Redis Error:", err);
 });
 
 module.exports = redis;
